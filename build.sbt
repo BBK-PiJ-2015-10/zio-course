@@ -13,6 +13,13 @@ libraryDependencies ++= Seq(
   "dev.zio" %% "zio-streams" % zioVersion,
   "dev.zio" %% "zio-test-junit" % zioVersion,
   "dev.zio" %% "zio-json" % "0.3.0-RC8",
+
+  "dev.zio" %% "zio-kafka" % "2.0.0",
+
+  // "dev.zio" %% "zio.kafka" % "2.0.0"
+
+
+
 )
 
 testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
