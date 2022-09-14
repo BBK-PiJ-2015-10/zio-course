@@ -1,16 +1,25 @@
 package com.rockthejvm.part8kafka
 
-import org.apache.kafka.clients.producer._
+import org.apache.kafka.clients.producer.{ProducerRecord, RecordMetadata}
 import zio._
 import zio.json.{DeriveJsonDecoder, DeriveJsonEncoder, JsonDecoder, JsonEncoder}
 import zio.kafka.consumer._
+import zio.kafka.producer._
 import zio.kafka.serde.Serde
 import zio.json._
 import zio.stream.{ZSink, ZStream}
 
-// extends zio.App
-
 // source: https://blog.rockthejvm.com/zio-kafka/
+
+/**
+ * To manipulate:
+ *  - docker-compose up -d
+ *  - docker exec -it broker bash
+ *  - kafka-topics --bootstrap-server localhost:9092 --topic updates --create
+ *  kafka-console-producer --topic updates --broker-list localhost:9092 --property parse.key=true --property key.separator=,
+ *  update-1,{"players":[{"name":"ITA","score":0},{"name":"England","score":2}]}
+ */
+
 
 object ZioKafka extends ZIOAppDefault {
 
@@ -71,5 +80,29 @@ object ZioKafka extends ZIOAppDefault {
 
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] =
     streamEffect.provideLayer(consumer).exit
+
+}
+
+object ZIOKafkaProducer extends ZIOAppDefault {
+
+  import ZioKafka._
+
+  val producerSettings: ProducerSettings = ProducerSettings.apply(List("localhost:9092"))
+
+  val producerResource: ZIO[Scope, Throwable, Producer] = Producer.make(producerSettings)
+  val producer: ZLayer[Scope, Throwable, Producer] =  ZLayer.fromZIO(producerResource)
+
+  val finalScore: Match = Match(Array(
+    MatchPlayer("ITA",6),
+    MatchPlayer("ENG",6)
+  ))
+
+  val record: ProducerRecord[String, Match] = new ProducerRecord[String,Match]("updates","updates-6",finalScore)
+
+  val producerEffect: RIO[Any with Producer, RecordMetadata] = Producer.produce(record,Serde.string,matchSerde)
+
+
+  override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] =
+    producerEffect.provideLayer(producer).exit
 
 }
