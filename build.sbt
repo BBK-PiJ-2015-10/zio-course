@@ -16,6 +16,11 @@ libraryDependencies ++= Seq(
 
   "dev.zio" %% "zio-kafka" % "2.0.0",
 
+  "io.d11" %% "zhttp" % "2.0.0-RC11"
+
+  // For zio http
+
+
   // "dev.zio" %% "zio.kafka" % "2.0.0"
 
 
