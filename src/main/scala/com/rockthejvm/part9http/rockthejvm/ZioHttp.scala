@@ -1,9 +1,9 @@
-package com.rockthejvm.part9http
+package com.rockthejvm.part9http.rockthejvm
 
-import zio._
-import zhttp._
 import zhttp.http._
+import zhttp.http.middleware.Cors.CorsConfig
 import zhttp.service.Server
+import zio._
 
 //source: https://blog.rockthejvm.com/zio-http/
 
@@ -16,7 +16,7 @@ object ZioHttp extends ZIOAppDefault {
   }
 
   val zApp: UHttpApp = Http.collectZIO[Request] {
-    case Method.POST -> !! / "owls" => Random.nextIntBetween(3,5).map(n => Response.text("Hello" *n +", owls!"))
+    case Method.POST -> !! / "owls" => Random.nextIntBetween(3,5).map(n => Response.text("Hello " *n +", owls!"))
   }
 
   // ++ combined
@@ -26,13 +26,24 @@ object ZioHttp extends ZIOAppDefault {
   // middleware
 
   val wrapped = combined @@ Middleware.debug
+
+  val config: CorsConfig = CorsConfig(
+    anyOrigin = false,
+    anyMethod = false,
+    //allowedOrigins = s => s.equals("www.c2fo.com"),
+    allowedMethods = Some(Set(Method.POST))
+  )
+
+  val wrappedWithCors = combined @@Middleware.cors(config)
   // request -> middleware -> combined
 
   val loggingHttp = combined @@ Verbose.log
 
+  val loggingHttpWithCors = combined @@ Verbose.log @@Middleware.cors(config)
+
   val httpProgram = for {
     _  <- Console.printLine(s"Starting server at http://localhost:$port")
-    _  <- Server.start(port,loggingHttp)
+    _  <- Server.start(port,wrappedWithCors)
   } yield ()
 
 
