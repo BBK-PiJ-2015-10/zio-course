@@ -18,7 +18,11 @@ libraryDependencies ++= Seq(
 
   "dev.zio" %% "zio-kafka" % "2.0.0",
 
+  // This is the one for the server
   "io.d11" %% "zhttp" % "2.0.0-RC11",
+
+  //This could be use for server and client
+//  "dev.zio" %% "zio.http" %zioVersion,
 
   "io.getquill" %% "quill-zio" %quilVersion,
   "io.getquill" %% "quill-jdbc-zio" %quilVersion,
