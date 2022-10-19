@@ -17,6 +17,6 @@ object SimpleClient extends ZIOAppDefault {
   } yield ()
 
   override def run: ZIO[Any with ZIOAppArgs with Scope, Any, Any] =
-  program.provide(EventLoopGroup.auto(10),ChannelFactory.auto)
+  program.provide(EventLoopGroup.auto(),ChannelFactory.auto)
 
 }
